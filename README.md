@@ -30,15 +30,17 @@ inception/
         │   ├── conf/
         │   │   └── 50-server.cnf
         │   └── tools/
-        │       └── setup_mariadb.sh
+        │       └── mariadb_setup.sh
         ├── wordpress/
         │   ├── Dockerfile      # WordPress container setup
         │   └── tools/
-        │       └── setup_wordpress.sh
+        │       └── wordpress_setup.sh
         └── nginx/
             ├── Dockerfile      # NGINX container setup
             └── conf/
-                └── nginx.conf
+            |   └── nginx.conf
+            └── tools/
+                └── setup_ssl.sh
 ```
 
 ## 🚀 Getting Started
