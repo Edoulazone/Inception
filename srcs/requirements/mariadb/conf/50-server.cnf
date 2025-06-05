@@ -1,0 +1,38 @@
+[server]
+[mysqld]
+# Run as mysql user for security
+user                    = mysql
+
+# Process ID file location
+pid-file                = /run/mysqld/mysqld.pid
+
+# MariaDB installation directory
+basedir                 = /usr
+
+# Database files location
+datadir                 = /var/lib/mysql
+
+# Temporary files location
+tmpdir                  = /tmp
+
+# Language settings
+lc-messages-dir         = /usr/share/mysql
+lc-messages             = en_US
+
+# Disable external file locking (better performance in containers)
+skip-external-locking
+
+# CRITICAL: Bind to all interfaces, not just localhost
+# This allows other containers to connect
+bind-address            = 0.0.0.0
+
+# Log file retention
+expire_logs_days        = 10
+
+# Character set configuration (supports emojis and international characters)
+character-set-server    = utf8mb4
+collation-server        = utf8mb4_general_ci
+
+[embedded]
+[mariadb]
+[mariadb-10.5]
