@@ -7,11 +7,26 @@ echo "Starting WordPress setup..."
 echo "Waiting for database to be ready..."
 sleep 10
 
-# Additional database connectivity check
-while ! mysqladmin ping -h"mariadb" -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" --silent; do
-    echo "Waiting for database connection..."
+# Alternative database connectivity check using wp-cli
+echo "Checking database connection..."
+max_attempts=30
+attempt=0
+
+while [ $attempt -lt $max_attempts ]; do
+    if wp db check --allow-root --path=/var/www/html 2>/dev/null; then
+        echo "Database connection successful!"
+        break
+    fi
+    
+    echo "Waiting for database connection... (attempt $((attempt + 1))/$max_attempts)"
     sleep 2
+    attempt=$((attempt + 1))
 done
+
+if [ $attempt -eq $max_attempts ]; then
+    echo "Failed to connect to database after $max_attempts attempts"
+    exit 1
+fi
 
 echo "Database is ready!"
 
