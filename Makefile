@@ -51,7 +51,7 @@ re: fclean all
 
 # Show container logs
 logs:
-	@docker-compose -f $(COMPOSE_FILE) logs -f
+	@timeout 30s docker-compose -f $(COMPOSE_FILE) logs -f || echo "Log viewing timed out"
 
 # Show container status
 status:
