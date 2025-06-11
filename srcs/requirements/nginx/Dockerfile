@@ -17,8 +17,12 @@ RUN mkdir -p /etc/nginx/ssl
 # Copy nginx configuration to the correct location
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-# Copy SSL setup script (adjust path as needed)
-COPY setup_ssl.sh /usr/local/bin/setup_ssl.sh
+# Copy SSL setup script - adjust this path to match your file location
+# Try one of these based on your directory structure:
+# COPY tools/setup_ssl.sh /usr/local/bin/setup_ssl.sh
+# COPY conf/setup_ssl.sh /usr/local/bin/setup_ssl.sh  
+# COPY ../tools/setup_ssl.sh /usr/local/bin/setup_ssl.sh
+COPY tools/setup_ssl.sh /usr/local/bin/setup_ssl.sh
 RUN chmod +x /usr/local/bin/setup_ssl.sh
 
 # Create nginx user and set permissions
