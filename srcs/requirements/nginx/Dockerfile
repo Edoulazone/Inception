@@ -7,17 +7,19 @@ RUN apt-get update && apt-get install -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
+# Remove default nginx configurations to avoid conflicts
+RUN rm -f /etc/nginx/sites-enabled/default
+RUN rm -f /etc/nginx/sites-available/default
+
 # Create SSL certificate directory
 RUN mkdir -p /etc/nginx/ssl
 
-# Generate self-signed SSL certificate
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/inception.key \
-    -out /etc/nginx/ssl/inception.crt \
-    -subj "/C=BE/ST=Brussels/L=Brussels/O=42School/OU=Student/CN=localhost"
+# Copy nginx configuration to the correct location
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-# Copy nginx configuration
-COPY conf/nginx.conf /etc/nginx/sites-available/default
+# Copy SSL setup script (adjust path as needed)
+COPY setup_ssl.sh /usr/local/bin/setup_ssl.sh
+RUN chmod +x /usr/local/bin/setup_ssl.sh
 
 # Create nginx user and set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -26,5 +28,5 @@ RUN chown -R www-data:www-data /var/www/html \
 # Expose port 443 for HTTPS
 EXPOSE 443
 
-# Start nginx in foreground
-CMD ["nginx", "-g", "daemon off;"]
+# Use setup script as entrypoint
+CMD ["/usr/local/bin/setup_ssl.sh"]
