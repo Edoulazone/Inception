@@ -1,20 +1,12 @@
 #!/bin/bash
 
-# This script runs when the container starts
-# It sets up the database, users, and permissions
-
 echo "Starting MariaDB initialization..."
 
-# Start MariaDB in the background
-# We need it running to execute SQL commands
+# Install MariaDB if not already done (in case of minimal base image)
 service mariadb start
 
-# Wait for MariaDB to fully start
-# Database startup can take a few seconds
 echo "Waiting for MariaDB to start..."
-sleep 5
-
-# Check if MariaDB is responding
+# Wait for MariaDB to be fully ready
 while ! mysqladmin ping -h"localhost" --silent; do
     echo "Waiting for MariaDB to be ready..."
     sleep 1
@@ -22,31 +14,29 @@ done
 
 echo "MariaDB is ready. Creating database and users..."
 
-# Execute SQL commands to set up WordPress database and user
+# Set root password first (this might be why auth is failing)
 mysql -u root << EOF
--- Create WordPress database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
-
--- Create WordPress user with specific permissions
--- '%' allows connections from any host (other containers)
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-
--- Grant all privileges on WordPress database to WordPress user
-GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
-
--- Set root password (initially, root has no password)
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+FLUSH PRIVILEGES;
+EOF
 
--- Apply all privilege changes
+# Now use the root password for subsequent commands
+mysql -u root -p"${MYSQL_ROOT_PASSWORD}" << EOF
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 
 echo "Database setup completed successfully!"
 
-# Stop MariaDB (we'll restart it properly)
-service mariadb stop
+# Properly shutdown MariaDB using mysqladmin
+echo "Shutting down MariaDB..."
+mysqladmin -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
 
-# Start MariaDB in foreground mode
-# This keeps the container running
+# Wait a moment for clean shutdown
+sleep 2
+
 echo "Starting MariaDB in production mode..."
+# Start MariaDB in foreground mode
 exec mysqld_safe
