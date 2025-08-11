@@ -1,47 +1,39 @@
-# Use Debian Bullseye as base image
+# Utilise l'image officielle Debian Bullseye comme base
 FROM debian:bullseye
 
-# Install PHP-FPM and required extensions
-# php7.4-fpm: FastCGI Process Manager
-# php7.4-mysql: MySQL/MariaDB connectivity
-# php7.4-curl: HTTP requests (for plugins, updates)
-# php7.4-gd: Image processing
-# php7.4-xml: XML processing
-# php7.4-mbstring: Multibyte string handling
-# php7.4-zip: ZIP archive handling
-# php7.4-intl: Internationalization functions
-RUN apt-get update && apt-get install -y \
-    php7.4-fpm \
-    php7.4-mysql \
-    php7.4-curl \
-    php7.4-gd \
-    php7.4-xml \
-    php7.4-mbstring \
-    php7.4-zip \
-    php7.4-intl \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+# Met à jour les paquets et installe :
+# - wget : pour télécharger des fichiers
+# - php7.4-fpm et php7.4-mysql : PHP-FPM avec extension MySQL pour WordPress
+# - mariadb-client : client MySQL/MariaDB pour communiquer avec la base de données
+# Ensuite supprime le cache APT pour réduire la taille de l'image
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y wget \
+        php7.4-fpm php7.4-mysql \
+        mariadb-client && \
+    rm -rf /var/lib/apt/lists/*
 
-# Download and install WordPress CLI
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-    && chmod +x wp-cli.phar \
-    && mv wp-cli.phar /usr/local/bin/wp
+# Copie la configuration personnalisée de PHP-FPM (pool www)
+COPY conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
-# Create WordPress directory
+# Télécharge WP-CLI (outil en ligne de commande pour WordPress) et le place dans /usr/local/bin/wp
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
+RUN chmod +x /usr/local/bin/wp
+
+# Crée le dossier racine qui contiendra les fichiers WordPress
 RUN mkdir -p /var/www/html
 
-# Configure PHP-FPM to listen on port 9000
-RUN sed -i 's/listen = \/run\/php\/php7.4-fpm.sock/listen = 9000/' /etc/php/7.4/fpm/pool.d/www.conf
+# Copie le script d’installation/configuration de WordPress dans le conteneur
+COPY tools/setup_wordpress.sh /setup.sh
 
-# Copy WordPress configuration script
-COPY tools/wordpress_setup.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/wordpress_setup.sh
+# Rend le script exécutable
+RUN chmod +x /setup.sh
 
-# Expose port 9000 for PHP-FPM
+# Expose le port 9000 (port par défaut utilisé par PHP-FPM)
 EXPOSE 9000
 
-# Set working directory
+# Définit le répertoire de travail par défaut à /var/www/html
+# Ainsi, les commandes WP-CLI et le script s’exécuteront directement dans ce dossier
 WORKDIR /var/www/html
 
-# Start PHP-FPM
-CMD ["/usr/local/bin/wordpress_setup.sh"]
+# Définit le script d’installation comme point d’entrée du conteneur
+ENTRYPOINT ["bash", "/setup.sh"]

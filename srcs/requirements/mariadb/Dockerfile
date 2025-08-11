@@ -1,25 +1,24 @@
-# Use Debian Bullseye as base image
+# Utilise l'image officielle Debian Bullseye comme base
 FROM debian:bullseye
 
-# Install MariaDB server
-RUN apt-get update && apt-get install -y \
-    mariadb-server \
-    mariadb-client \
-    && rm -rf /var/lib/apt/lists/*
+# Met à jour la liste des paquets et applique les mises à jour disponibles
+RUN apt-get update && apt-get upgrade -y
 
-# Copy MariaDB configuration
+# Installe le serveur MariaDB (fork libre de MySQL)
+RUN apt-get install mariadb-server -y
+
+# Supprime les fichiers temporaires liés à apt pour alléger l'image finale
+RUN rm -rf /var/lib/apt/lists/*
+
+# Copie le fichier de configuration personnalisé de MariaDB
+# dans le dossier de configuration utilisé par Debian/MariaDB
 COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-# Copy database initialization script
-COPY tools/mariadb_setup.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/mariadb_setup.sh
+# Copie le script d'initialisation dans le conteneur
+COPY tools/setup_mariadb.sh /setup.sh
 
-# Create mysql data directory
-RUN mkdir -p /var/lib/mysql \
-    && chown -R mysql:mysql /var/lib/mysql
+# Rend ce script exécutable
+RUN chmod +x /setup.sh
 
-# Expose port 3306
-EXPOSE 3306
-
-# Start MariaDB
-CMD ["/usr/local/bin/mariadb_setup.sh"]
+# Définit le script comme point d'entrée : il sera exécuté au démarrage du conteneur
+ENTRYPOINT ["bash", "/setup.sh"]

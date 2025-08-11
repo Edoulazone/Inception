@@ -1,38 +1,45 @@
-[server]
-[mysqld]
-# Run as mysql user for security
-user                    = mysql
+[server]               # Section générique (souvent utilisée pour appliquer des options globales)
 
-# Process ID file location
-pid-file                = /run/mysqld/mysqld.pid
+[mysqld]               # Section principale pour le serveur MariaDB
 
-# MariaDB installation directory
-basedir                 = /usr
+# Exécuter MariaDB sous l’utilisateur mysql pour des raisons de sécurité
+user = mysql
 
-# Database files location
-datadir                 = /var/lib/mysql
+# Port par défaut pour les connexions MySQL (peut être modifié si nécessaire)
+# port = 3306
 
-# Temporary files location
-tmpdir                  = /tmp
+# Fichier contenant le PID (identifiant de processus)
+pid-file = /run/mysqld/mysqld.pid
 
-# Language settings
-lc-messages-dir         = /usr/share/mysql
-lc-messages             = en_US
+# Répertoire d’installation de MariaDB
+basedir = /usr
 
-# Disable external file locking (better performance in containers)
+# Emplacement des fichiers de données de la base
+datadir = /var/lib/mysql
+
+# Répertoire pour les fichiers temporaires
+tmpdir = /tmp
+
+# Répertoire contenant les fichiers de traduction
+lc-messages-dir = /usr/share/mysql
+
+# Langue utilisée pour les messages du serveur
+lc-messages = en_US
+
+# Désactiver le verrouillage externe (améliore les performances en environnement conteneurisé)
 skip-external-locking
 
-# CRITICAL: Bind to all interfaces, not just localhost
-# This allows other containers to connect
-bind-address            = 0.0.0.0
+# IMPORTANT : accepter les connexions depuis toutes les interfaces réseau
+# Cela permet aux autres conteneurs Docker (comme WordPress) de se connecter
+bind-address = 0.0.0.0
 
-# Log file retention
-expire_logs_days        = 10
+# Supprimer automatiquement les anciens logs après 10 jours
+expire_logs_days = 10
 
-# Character set configuration (supports emojis and international characters)
-character-set-server    = utf8mb4
-collation-server        = utf8mb4_general_ci
+# Encodage utilisé par défaut (utf8mb4 prend en charge les emojis et caractères internationaux)
+character-set-server = utf8mb4
+collation-server = utf8mb4_general_ci
 
-[embedded]
-[mariadb]
-[mariadb-10.5]
+[embedded]            # Pour l’utilisation de MariaDB comme base embarquée (rarement utilisé ici)
+[mariadb]             # Section spécifique à MariaDB (peut contenir des options propres à cette version)
+[mariadb-10.5]        # S’applique uniquement à MariaDB 10.5
