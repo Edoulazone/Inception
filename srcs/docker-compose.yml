@@ -1,5 +1,3 @@
-version: "3"  # 📌 Version de la syntaxe docker-compose utilisée
-
 services:
   # 🔹 Service MariaDB
   mariadb:
@@ -39,7 +37,7 @@ services:
     ports:
       - "443:443"             # 🌍 Port HTTPS exposé localement
     volumes:
-      - wordpress_data:/var/www/html  # 📁 Partage les fichiers WordPress avec NGINX
+      - wordpress_data:/var/www/html:ro  # 📁 Partage les fichiers WordPress avec NGINX
     networks:
       - inception
     depends_on:
