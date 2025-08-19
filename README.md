@@ -42,3 +42,5 @@ inception/
             └── tools/
                 └── setup_ssl.sh
 ```
+
+Good news for you, Jonathan Veirman and myself have made a not so little guide to help you through this possibly overwhelming project. So, if you're in need of a little help or just want to understand Docker better, we invite to click here -> https://www.notion.so/Docker-simplified-23fa6a3fff8f8042b6a6d0b3dafb48b1?source=copy_link
