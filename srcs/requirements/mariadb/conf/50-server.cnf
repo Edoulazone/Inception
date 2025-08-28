@@ -1,5 +1,3 @@
-[server]               # Section générique (souvent utilisée pour appliquer des options globales)
-
 [mysqld]               # Section principale pour le serveur MariaDB
 
 # Exécuter MariaDB sous l’utilisateur mysql pour des raisons de sécurité
@@ -39,7 +37,3 @@ expire_logs_days = 10
 # Encodage utilisé par défaut (utf8mb4 prend en charge les emojis et caractères internationaux)
 character-set-server = utf8mb4
 collation-server = utf8mb4_general_ci
-
-[embedded]            # Pour l’utilisation de MariaDB comme base embarquée (rarement utilisé ici)
-[mariadb]             # Section spécifique à MariaDB (peut contenir des options propres à cette version)
-[mariadb-10.5]        # S’applique uniquement à MariaDB 10.5

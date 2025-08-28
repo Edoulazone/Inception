@@ -16,19 +16,19 @@ build:
 	# Create data directories if they don't exist
 	@mkdir -p $(DATA_PATH)/mysql $(DATA_PATH)/wordpress
 	# Build all services defined in docker-compose.yml
-	@docker-compose -f $(COMPOSE_FILE) build
+	@cd srcs/ && docker-compose build
 
 # Start all containers
 up:
 	@echo "Starting containers..."
 	# Start containers in detached mode (-d)
-	@docker-compose -f $(COMPOSE_FILE) up -d
+	@cd srcs/ && docker-compose up
 
 # Stop all containers
 down:
 	@echo "Stopping containers..."
 	# Stop and remove containers
-	@docker-compose -f $(COMPOSE_FILE) down
+	@cd srcs/ && docker-compose down
 
 # Clean up containers and images
 clean: down
